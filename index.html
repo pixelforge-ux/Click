@@ -1,127 +1,0 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فضانورد حمله‌ور - بازی تیراندازی فضایی</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
-<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
-</head>
-<body>
-    <div id="gameContainer">
-        <!-- منوی اصلی -->
-        <div id="mainMenu" class="menu-screen">
-            <div class="menu-content">
-                <h1 class="game-title">فضانورد حمله‌ور</h1>
-                <p class="game-subtitle">نبردی بی‌پایان در کهکشان</p>
-                <div class="menu-buttons">
-                    <button id="startBtn" class="game-btn">شروع بازی</button>
-                    <button id="soundToggle" class="game-btn">صدا: روشن</button>
-                    <button id="highScoresBtn" class="game-btn">امتیازات برتر</button>
-                </div>
-                <div class="controls-info">
-                    <h3>کنترل‌ها:</h3>
-                    <p>🎮 کامپیوتر: WASD/جهات برای حرکت، فاصله برای شلیک</p>
-                    <p>📱 موبایل: لمس برای حرکت و شلیک خودکار</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- منوی Pause -->
-        <div id="pauseMenu" class="menu-screen hidden">
-            <div class="menu-content">
-                <h2>توقف بازی</h2>
-                <div class="menu-buttons">
-                    <button id="resumeBtn" class="game-btn">ادامه بازی</button>
-                    <button id="restartBtn" class="game-btn">شروع مجدد</button>
-                    <button id="mainMenuBtn" class="game-btn">منوی اصلی</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- صفحه Game Over -->
-        <div id="gameOverMenu" class="menu-screen hidden">
-            <div class="menu-content">
-                <h2>پایان بازی</h2>
-                <div class="score-display">
-                    <p>امتیاز شما: <span id="finalScore">0</span></p>
-                    <p>بالاترین امتیاز: <span id="highScore">0</span></p>
-                </div>
-                <div class="menu-buttons">
-                    <button id="playAgainBtn" class="game-btn">بازی دوباره</button>
-                    <button id="backToMenuBtn" class="game-btn">منوی اصلی</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- صفحه امتیازات برتر -->
-        <div id="highScoresMenu" class="menu-screen hidden">
-            <div class="menu-content">
-                <h2>امتیازات برتر</h2>
-                <div id="scoresList" class="scores-list">
-                    <!-- لیست امتیازات اینجا نمایش داده می‌شود -->
-                </div>
-                <button id="backFromScoresBtn" class="game-btn">بازگشت</button>
-            </div>
-        </div>
-
-        <!-- بازی اصلی -->
-        <div id="gameCanvas" class="game-canvas">
-            <canvas id="canvas"></canvas>
-            
-            <!-- HUD بازی -->
-            <div id="gameHUD" class="game-hud hidden">
-                <div class="hud-top">
-                    <div class="hud-left">
-                        <div class="health-display">
-                            <span>❤️</span>
-                            <div class="health-bar">
-                                <div id="healthBar" class="health-fill"></div>
-                            </div>
-                            <span id="healthText">3/3</span>
-                        </div>
-                        <div class="score-display">
-                            <span>⭐</span>
-                            <span id="scoreText">0</span>
-                        </div>
-                    </div>
-                    <div class="hud-right">
-                        <div class="wave-display">
-                            <span>🌊</span>
-                            <span>موج <span id="waveText">1</span></span>
-                        </div>
-                        <div class="combo-display">
-                            <span>🔥</span>
-                            <span id="comboText">x1</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="hud-bottom">
-                    <div class="power-up-display" id="powerUpDisplay">
-                        <!-- Power-upهای فعال اینجا نمایش داده می‌شوند -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- کنترل‌های موبایل -->
-            <div id="mobileControls" class="mobile-controls">
-                <div class="joystick-area" id="joystickArea"></div>
-                <button id="mobileFireBtn" class="fire-btn">🔥</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading screen -->
-    <div id="loadingScreen" class="loading-screen">
-        <div class="loading-content">
-            <h2>در حال بارگذاری...</h2>
-            <div class="loading-bar">
-                <div id="loadingProgress" class="loading-progress"></div>
-            </div>
-        </div>
-    </div>
-
-    <script src="game.js"></script>
-</body>
-</html>
