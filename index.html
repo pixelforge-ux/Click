@@ -257,9 +257,22 @@
             perspective: 1000px;
             width: 100%;
             aspect-ratio: 4/3; /* horizontal aspect ratio */
-            max-width: 120px; /* reduced max width to fit 30 cards */
-            min-width: 70px;  /* reduced min width for small screens */
             cursor: pointer;
+        }
+
+        /* Card size presets per difficulty to scale cards larger on easier levels */
+        /* Increased sizes so in-game cards appear noticeably bigger */
+        .card-size-easy { max-width: 200px; min-width: 120px; }
+        .card-size-medium { max-width: 170px; min-width: 105px; }
+        /* Hard difficulty cards are slightly larger so they remain readable while still fitting the grid */
+        .card-size-hard { max-width: 140px; min-width: 84px; }
+
+        /* Ensure grid can shrink cards on narrow screens while keeping aspect */
+        @media (max-width: 420px) {
+            .card-size-easy { max-width: 160px; min-width: 100px; }
+            .card-size-medium { max-width: 140px; min-width: 92px; }
+            /* mobile: make hard cards larger but still compact */
+            .card-size-hard { max-width: 120px; min-width: 72px; }
         }
 
         .card-inner {
@@ -337,11 +350,25 @@
         .btn-diff-easy:hover { background: rgba(16, 185, 129, 0.25); }
         .btn-diff-easy .title { color: #10b981; }
         
-        .btn-diff-medium { background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); }
+        /* medium slightly larger for emphasis */
+        .btn-diff-medium {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.3);
+            padding: 1.2rem;
+            transform: scale(1.03);
+            font-size: 1.03rem;
+        }
         .btn-diff-medium:hover { background: rgba(245, 158, 11, 0.25); }
         .btn-diff-medium .title { color: #f59e0b; }
 
-        .btn-diff-hard { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); }
+        /* hard noticeably larger */
+        .btn-diff-hard {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            padding: 1.35rem;
+            transform: scale(1.08);
+            font-size: 1.08rem;
+        }
         .btn-diff-hard:hover { background: rgba(239, 68, 68, 0.25); }
         .btn-diff-hard .title { color: #ef4444; }
 
@@ -357,7 +384,7 @@
         }
         .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
-<style>
+    <style>
 @font-face { 
   font-family: "Vazir";
   /* Add other properties here, as needed. For example: */
@@ -375,7 +402,7 @@
 * {
   font-family: 'Vazir' !important;
 }
-    </style>
+</style>
 </head>
 <body>
     
@@ -408,7 +435,7 @@
 
             <div class="mt-8 p-4" style="border-top: 1px solid var(--border-white);">
                 <span class="text-muted text-sm">ثبت تبلیغ</span>
-                <a href="#" class="text-blue text-sm" style="text-decoration: underline; margin-right: 0.25rem;">@Arvinweb</a>
+                <a href="https://eitaa.com/Arvinweb" id="footer-arvin" class="text-blue text-sm" style="text-decoration: underline; margin-right: 0.25rem;">@Arvinweb</a>
             </div>
         </div>
     </div>
@@ -768,8 +795,13 @@
             const grid = document.getElementById('card-grid');
             grid.innerHTML = '';
             
-            // Use the CSS class defined in the style block
-            grid.className = `card-grid grid-cols-${config.cols}`;
+            // Set grid columns and ensure base class remains
+            grid.className = ''; // reset to ensure we can set classes cleanly
+            grid.classList.add('card-grid');
+            grid.classList.add(`grid-cols-${config.cols}`);
+
+            // mark grid with current difficulty (useful for styling or debugging)
+            grid.dataset.difficulty = gameState.difficulty;
 
             const allIndices = Array.from({length: gameState.imageCount}, (_, i) => i + 1);
             const selectedIndices = allIndices.sort(() => Math.random() - 0.5).slice(0, gameState.totalPairs);
@@ -778,6 +810,8 @@
             deck.forEach((imgIdx, idx) => {
                 const card = document.createElement('div');
                 card.className = 'card-container opacity-0 scale-50';
+                // apply size preset based on selected difficulty so easy=larger, medium=mid, hard=smaller
+                card.classList.add(`card-size-${gameState.difficulty}`);
                 card.dataset.id = imgIdx;
                 card.innerHTML = `
                     <div class="card-inner shadow-2xl">
@@ -1184,6 +1218,34 @@
                 playSound('click');
                 saveSettings({ animatedBg: !settingsState.animatedBg });
             };
+
+            // Footer link: open via Eitaa JS SDK if available, otherwise fallback to normal open
+            const footerLink = document.getElementById('footer-arvin');
+            if (footerLink) {
+                footerLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const url = 'https://eitaa.com/Arvinweb';
+                    try {
+                        // Try common SDK methods with fallbacks
+                        if (window.Eitaa && Eitaa.WebApp) {
+                            if (typeof Eitaa.WebApp.open === 'function') {
+                                Eitaa.WebApp.open(url);
+                            } else if (typeof Eitaa.WebApp.openLink === 'function') {
+                                Eitaa.WebApp.openLink(url);
+                            } else if (typeof Eitaa.WebApp.openExternal === 'function') {
+                                Eitaa.WebApp.openExternal(url);
+                            } else {
+                                window.open(url, '_blank');
+                            }
+                        } else {
+                            window.open(url, '_blank');
+                        }
+                        playSound('click');
+                    } catch (err) {
+                        window.open(url, '_blank');
+                    }
+                }, { passive: true });
+            }
         }
 
         // Boot
