@@ -5,83 +5,260 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>بازی حافظه تصویری</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;900&display=swap');
 
-        body {
-            font-family: 'Vazirmatn', "Vazir", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-            font-weight: 400;
+        :root {
+            --bg-dark: #020617;
+            --bg-slate: #0f172a;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-white: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            background-color: #020617;
         }
 
+        body {
+            font-family: 'Vazirmatn', "Vazir", system-ui, -apple-system, sans-serif !important;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Layout Utilities */
+        .fixed-inset { position: fixed; inset: 0; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .text-center { text-align: center; }
+        .w-full { width: 100%; }
+        .h-full { height: 100%; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mb-10 { margin-bottom: 2.5rem; }
+        .mt-8 { margin-top: 2rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .hidden { display: none !important; }
+
+        /* Typography */
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .font-bold { font-weight: 700; }
+        .font-black { font-weight: 900; }
+        .font-mono { font-family: monospace; }
+        .text-muted { color: var(--text-muted); }
+        .text-blue { color: var(--primary); }
+        .text-red { color: var(--danger); }
+
+        /* Components */
         .glass {
-            background-color: #0f172a; /* Solid fallback for older WebViews */
             background-color: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(8px); /* Even lower blur for better compatibility */
+            backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 
-                inset 0 1px 1px rgba(255, 255, 255, 0.1),
-                0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-white);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            border-radius: 1.5rem;
         }
 
-        .glow-border {
-            position: relative;
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border: none;
+            color: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
         }
 
-        .glow-border::after {
-            content: '';
-            position: absolute;
-            inset: -1px;
-            background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.4), transparent);
-            z-index: -1;
-            border-radius: inherit;
-            animation: border-glow 4s linear infinite;
+        .btn-primary:active { transform: scale(0.96); }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-white);
+            color: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        @keyframes border-glow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
+        .btn-outline:active { background: rgba(255, 255, 255, 0.1); transform: scale(0.96); }
+
+        .btn-ghost {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .btn-ghost:hover { color: white; }
+
+        /* Specialized Views */
+        .screen-container {
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .panel-max-sm { width: 100%; max-width: 24rem; }
+
+        /* Visual Effects */
+        .bg-gradient-text {
+            background: linear-gradient(to right, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         #bg-canvas-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
             background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #020617 100%);
         }
 
-        .text-glow {
-            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-        }
-
-        .card-shine {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+        .pattern-overlay {
+            position: fixed;
+            inset: 0;
             pointer-events: none;
-            z-index: 5;
+            z-index: 10;
+            opacity: 0.2;
+            background-repeat: repeat;
         }
 
-        .btn-premium {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(37, 99, 235, 0.8));
-            box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
-            transition: all 0.3s ease;
+        /* Loading */
+        .loading-container {
+            width: 16rem;
+            height: 0.5rem;
+            background: #1e293b;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .loading-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
         }
 
-        .btn-premium:hover {
-            box-shadow: 0 0 30px rgba(37, 99, 235, 0.5);
-            transform: translateY(-2px);
+        /* Settings Options */
+        .setting-card {
+            background: rgba(255,255,255,0.03);
+            padding: 1rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border-white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Card Styles */
+        .grid-select {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        .grid-select-3 { grid-template-columns: repeat(3, 1fr); }
+
+        .select-opt {
+            position: relative;
+            cursor: pointer;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .select-opt.selected { border-color: var(--primary); }
+        .select-opt img { width: 100%; height: 5rem; object-fit: cover; display: block; }
+        .select-opt-square img { aspect-ratio: 1/1; height: auto; }
+        .select-label {
+            position: absolute;
+            bottom: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            background: rgba(0,0,0,0.6);
+            padding: 0.1rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            width: 3.5rem;
+            height: 1.75rem;
+            background: #334155;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .toggle-switch.active { background: var(--primary); }
+        .toggle-switch .dot {
+            width: 1.25rem;
+            height: 1.25rem;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 0.25rem;
+            left: 0.25rem;
+            transition: transform 0.3s;
+        }
+        .toggle-switch.active .dot { transform: translateX(1.75rem); }
+
+        /* Game Card Engine */
+        .card-grid {
+            display: grid;
+            gap: 0.45rem; /* tighter spacing so more cards fit */
+            max-width: 100%;
+            width: fit-content;
+            margin: 0 auto;
+            justify-items: center;
+            align-items: center;
+            place-content: center;
+            padding: 0.5rem;
+        }
+
         .card-container {
             perspective: 1000px;
             width: 100%;
-            height: 100%;
-            min-height: 60px;
+            aspect-ratio: 4/3; /* horizontal aspect ratio */
+            max-width: 120px; /* reduced max width to fit 30 cards */
+            min-width: 70px;  /* reduced min width for small screens */
             cursor: pointer;
         }
 
@@ -90,17 +267,11 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
             transform-style: preserve-3d;
         }
 
-        .card-container:hover .card-inner {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .card-container.flipped .card-inner {
-            transform: rotateY(180deg);
-        }
+        .card-container.flipped .card-inner { transform: rotateY(180deg); }
 
         .card-container.matched {
             opacity: 0.4;
@@ -110,205 +281,233 @@
             transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .animate-float {
-            animation: float 4s ease-in-out infinite;
-        }
-
         .card-front, .card-back {
             position: absolute;
             width: 100%;
             height: 100%;
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
-            border-radius: 12px;
+            border-radius: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .card-front {
-            background: #0f172a;
+            background: radial-gradient(circle at 50% 50%, #1e293b, #0f172a);
             transform: rotateY(180deg);
-            border: 2px solid rgba(255,255,255,0.15);
+            border: 2px solid rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
             overflow: hidden;
         }
 
         .card-back {
             background-size: cover;
             background-position: center;
-            border: 2px solid rgba(255,255,255,0.1);
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.7), 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
-        .card-front img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .card-front img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            filter: drop-shadow(0 0 8px rgba(0,0,0,0.35));
+            display: block;
         }
 
-        /* Layout helpers for different grid sizes */
+        .card-shine {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+
+        /* Difficulty Buttons */
+        .btn-diff {
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid transparent;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-diff-easy { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); }
+        .btn-diff-easy:hover { background: rgba(16, 185, 129, 0.25); }
+        .btn-diff-easy .title { color: #10b981; }
+        
+        .btn-diff-medium { background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); }
+        .btn-diff-medium:hover { background: rgba(245, 158, 11, 0.25); }
+        .btn-diff-medium .title { color: #f59e0b; }
+
+        .btn-diff-hard { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); }
+        .btn-diff-hard:hover { background: rgba(239, 68, 68, 0.25); }
+        .btn-diff-hard .title { color: #ef4444; }
+
+        /* Helpers for grid column counts */
         .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
         .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
         .grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
         .grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
 </head>
-<body class="bg-slate-950 text-white overflow-hidden font-sans antialiased selection:bg-blue-500/30">
+<body>
     
     <!-- Visual Effects Layer -->
-    <div class="fixed inset-0 pointer-events-none z-10 opacity-20 bg-[url('bg_pattern_dots.png')] bg-repeat"></div>
-    <div class="fixed inset-0 pointer-events-none z-10 bg-[radial-gradient(circle_at_50%_-20%,rgba(59,130,246,0.15),transparent_70%)]"></div>
-    <div class="fixed inset-0 pointer-events-none z-10 ring-inset ring-1 ring-white/5"></div>
+    <div class="pattern-overlay fixed-inset" style="background-image: url('bg_pattern_dots.png')"></div>
+    <div class="fixed-inset" style="background: radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.15), transparent 70%); z-index: 10; pointer-events: none;"></div>
 
     <!-- Three.js Background Container -->
-    <div id="bg-canvas-container" class="fixed inset-0 z-0 pointer-events-none"></div>
+    <div id="bg-canvas-container"></div>
 
     <!-- Splash Screen -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950 transition-opacity duration-1000">
-        <img src="splash_logo.png" alt="Logo" class="w-32 h-32 mb-8 animate-pulse">
+    <div id="splash-screen" class="fixed-inset flex flex-col items-center justify-center" style="background-color: var(--bg-dark); z-index: 100; transition: opacity 1s;">
+        <img src="splash_logo.png" alt="Logo" class="animate-pulse" style="width: 8rem; height: 8rem; margin-bottom: 2rem;">
         <h1 class="text-3xl font-bold mb-2">بازی حافظه تصویری</h1>
-        <p class="text-slate-400 mb-8">کاری از سید آروین موسوی</p>
-        <div class="w-64 h-2 bg-slate-800 rounded-full overflow-hidden">
-            <div id="loading-bar" class="h-full bg-blue-500 w-0 transition-all duration-300"></div>
+        <p class="text-muted mb-8">کاری از سید آروین موسوی</p>
+        <div class="loading-container">
+            <div id="loading-bar" class="loading-bar"></div>
         </div>
     </div>
 
     <!-- Main Menu -->
-    <div id="main-menu" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 text-center">
-        <div class="glass p-8 rounded-3xl w-full max-w-sm border border-white/10 shadow-2xl backdrop-blur-xl">
-            <h2 class="text-4xl font-black mb-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">منوی اصلی</h2>
+    <div id="main-menu" class="fixed-inset screen-container">
+        <div class="glass p-8 panel-max-sm text-center">
+            <h2 class="text-4xl font-black mb-10 bg-gradient-text">منوی اصلی</h2>
             
-            <div class="space-y-4">
-                <button id="btn-start" class="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-2xl font-bold text-xl shadow-lg transition-transform active:scale-95">شروع بازی</button>
-                <button id="btn-settings" class="w-full py-4 bg-white/5 hover:bg-white/10 rounded-2xl font-bold text-xl border border-white/10 transition-all active:scale-95">تنظیمات</button>
+            <div class="flex flex-col gap-4">
+                <button id="btn-start" class="btn-primary">شروع بازی</button>
+                <button id="btn-settings" class="btn-outline">تنظیمات</button>
             </div>
 
-            <div class="mt-10 pt-6 border-t border-white/5">
-                <a href="#" class="text-blue-400 text-sm underline decoration-blue-400/80 hover:opacity-90 transition-colors">ثبت تبلیغ <span class="text-blue-400">@Arvinweb</span></a>
+            <div class="mt-8 p-4" style="border-top: 1px solid var(--border-white);">
+                <span class="text-muted text-sm">ثبت تبلیغ</span>
+                <a href="#" class="text-blue text-sm" style="text-decoration: underline; margin-right: 0.25rem;">@Arvinweb</a>
             </div>
         </div>
     </div>
 
     <!-- Difficulty Selection -->
-    <div id="difficulty-menu" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center p-6">
-        <div class="glass p-8 rounded-3xl w-full max-w-sm border border-white/10 shadow-2xl text-center">
+    <div id="difficulty-menu" class="hidden fixed-inset screen-container">
+        <div class="glass p-8 panel-max-sm text-center">
             <h2 class="text-3xl font-bold mb-8">انتخاب سطح سختی</h2>
-            <div class="grid gap-4">
-                <button data-difficulty="easy" class="btn-diff p-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 transition-all">
-                    <span class="block text-xl font-bold text-emerald-400">آسان</span>
-                    <span class="text-sm opacity-60 text-emerald-100">۱۲ کارت (۳x۴)</span>
-                </button>
-                <button data-difficulty="medium" class="btn-diff p-4 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30 transition-all">
-                    <span class="block text-xl font-bold text-orange-400">متوسط</span>
-                    <span class="text-sm opacity-60 text-orange-100">۱۶ کارت (۴x۴)</span>
-                </button>
-                <button data-difficulty="hard" class="btn-diff p-4 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 transition-all">
-                    <span class="block text-xl font-bold text-red-400">سخت</span>
-                    <span class="text-sm opacity-60 text-red-100">۳۰ کارت (۵x۶)</span>
-                </button>
+            <div class="flex flex-col gap-4">
+                <div data-difficulty="easy" class="btn-diff btn-diff-easy">
+                    <span class="title text-xl font-bold flex flex-col">آسان</span>
+                    <span class="text-muted text-sm">۱۲ کارت (۳x۴)</span>
+                </div>
+                <div data-difficulty="medium" class="btn-diff btn-diff-medium">
+                    <span class="title text-xl font-bold flex flex-col">متوسط</span>
+                    <span class="text-muted text-sm">۱۶ کارت (۴x۴)</span>
+                </div>
+                <div data-difficulty="hard" class="btn-diff btn-diff-hard">
+                    <span class="title text-xl font-bold flex flex-col">سخت</span>
+                    <span class="text-muted text-sm">۳۰ کارت (۵x۶)</span>
+                </div>
             </div>
-            <button id="btn-back-menu" class="mt-8 text-slate-400 hover:text-white transition-colors">بازگشت به منو</button>
+            <button id="btn-back-menu" class="mt-8 btn-ghost">بازگشت به منو</button>
         </div>
     </div>
 
     <!-- Settings Menu -->
-    <div id="settings-menu" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center p-6">
-        <div class="glass p-6 rounded-3xl w-full max-w-md border border-white/10 shadow-2xl overflow-y-auto max-h-[90vh]">
+    <div id="settings-menu" class="hidden fixed-inset screen-container">
+        <div class="glass p-6 w-full" style="max-width: 28rem; overflow-y: auto; max-h: 90vh;">
             <h2 class="text-2xl font-bold mb-6 text-center">تنظیمات گرافیکی</h2>
             
-            <div class="mb-8 flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5">
-                <label class="text-sm font-bold text-slate-300">پس‌زمینه متحرک (سه بعدی)</label>
-                <button id="toggle-animated-bg" class="w-14 h-7 rounded-full bg-slate-700 relative transition-all duration-300 shadow-inner">
-                    <div class="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform duration-300 shadow-md"></div>
-                </button>
+            <div class="setting-card mb-8">
+                <span class="text-sm font-bold">پس‌زمینه متحرک (سه بعدی)</span>
+                <div id="toggle-animated-bg" class="toggle-switch">
+                    <div class="dot"></div>
+                </div>
             </div>
 
             <div class="mb-8">
-                <label class="block text-sm text-slate-400 mb-3">طرح بافت پس‌زمینه</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="setting-opt-bg relative cursor-pointer group" data-bg="dots">
-                        <img src="bg_pattern_dots.png" class="w-full h-20 object-cover rounded-xl border-2 border-transparent group-[.selected]:border-blue-500">
-                        <span class="absolute bottom-2 right-2 text-xs bg-black/50 px-2 rounded">نقطه‌ای</span>
+                <label class="text-muted text-sm mb-2" style="display: block;">طرح بافت پس‌زمینه</label>
+                <div class="grid-select">
+                    <div class="select-opt setting-opt-bg" data-bg="dots">
+                        <img src="bg_pattern_dots.png">
+                        <span class="select-label">نقطه‌ای</span>
                     </div>
-                    <div class="setting-opt-bg relative cursor-pointer group" data-bg="waves">
-                        <img src="bg_pattern_waves.png" class="w-full h-20 object-cover rounded-xl border-2 border-transparent group-[.selected]:border-blue-500">
-                        <span class="absolute bottom-2 right-2 text-xs bg-black/50 px-2 rounded">موج‌دار</span>
+                    <div class="select-opt setting-opt-bg" data-bg="waves">
+                        <img src="bg_pattern_waves.png">
+                        <span class="select-label">موج‌دار</span>
                     </div>
                 </div>
             </div>
 
             <div class="mb-8">
-                <label class="block text-sm text-slate-400 mb-3">طرح پشت کارت‌ها</label>
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="setting-opt-card relative cursor-pointer group" data-card="classic">
-                        <img src="card_back_classic.png" class="w-full aspect-square object-cover rounded-lg border-2 border-transparent group-[.selected]:border-blue-500">
+                <label class="text-muted text-sm mb-2" style="display: block;">طرح پشت کارت‌ها</label>
+                <div class="grid-select grid-select-3">
+                    <div class="select-opt select-opt-square setting-opt-card" data-card="classic">
+                        <img src="card_back_classic.png">
                     </div>
-                    <div class="setting-opt-card relative cursor-pointer group" data-card="modern">
-                        <img src="card_back_modern.png" class="w-full aspect-square object-cover rounded-lg border-2 border-transparent group-[.selected]:border-blue-500">
+                    <div class="select-opt select-opt-square setting-opt-card" data-card="modern">
+                        <img src="card_back_modern.png">
                     </div>
-                    <div class="setting-opt-card relative cursor-pointer group" data-card="abstract">
-                        <img src="card_back_abstract.png" class="w-full aspect-square object-cover rounded-lg border-2 border-transparent group-[.selected]:border-blue-500">
+                    <div class="select-opt select-opt-square setting-opt-card" data-card="abstract">
+                        <img src="card_back_abstract.png">
                     </div>
                 </div>
             </div>
 
-            <button id="btn-save-settings" class="w-full py-4 bg-blue-600 rounded-2xl font-bold shadow-lg transition-transform active:scale-95">ذخیره و بازگشت</button>
+            <button id="btn-save-settings" class="btn-primary w-full">ذخیره و بازگشت</button>
         </div>
     </div>
 
     <!-- Win Modal -->
-    <div id="win-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-sm">
-        <div class="glass p-8 rounded-3xl w-full max-w-sm border border-white/20 shadow-2xl text-center">
-            <div class="text-6xl mb-4">🏆</div>
+    <div id="win-modal" class="hidden fixed-inset screen-container" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
+        <div class="glass p-8 panel-max-sm text-center">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🏆</div>
             <h2 class="text-3xl font-bold mb-2">تبریک!</h2>
-            <p class="text-slate-300 mb-6">شما تمام جفت‌ها را پیدا کردید.</p>
+            <p class="text-muted mb-6">شما تمام جفت‌ها را پیدا کردید.</p>
             
-            <div class="bg-white/5 rounded-2xl p-4 mb-8 grid grid-cols-2 gap-4">
-                <div>
-                    <div class="text-xs text-slate-400">زمان</div>
-                    <div id="final-time" class="text-xl font-bold">00:00</div>
+            <div class="flex gap-4 mb-8" style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 1rem;">
+                <div class="flex-col flex" style="flex: 1;">
+                    <span class="text-xs text-muted">زمان</span>
+                    <span id="final-time" class="text-xl font-bold">00:00</span>
                 </div>
-                <div>
-                    <div class="text-xs text-slate-400">امتیاز</div>
-                    <div id="final-score" class="text-xl font-bold">0</div>
+                <div class="flex-col flex" style="flex: 1;">
+                    <span class="text-xs text-muted">امتیاز</span>
+                    <span id="final-score" class="text-xl font-bold">0</span>
                 </div>
             </div>
 
-            <button id="btn-win-close" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-lg transition-all active:scale-95">بازگشت به منو</button>
+            <button id="btn-win-close" class="btn-primary w-full">بازگشت به منو</button>
         </div>
     </div>
 
     <!-- Game View -->
-    <div id="game-view" class="hidden fixed inset-0 z-40 flex flex-col">
-        <header class="p-4 flex justify-between items-center glass border-b border-white/10">
+    <div id="game-view" class="hidden fixed-inset flex flex-col" style="z-index: 40;">
+        <header class="p-4 flex justify-between items-center glass" style="border-radius: 0; border-bottom: 1px solid var(--border-white);">
             <div class="flex items-center gap-4">
-                <button id="btn-quit" class="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-red-400">انصراف</button>
+                <button id="btn-quit" class="btn-outline text-red" style="padding: 0.5rem 1rem;">انصراف</button>
             </div>
-            <div id="game-stats" class="flex gap-6">
+            <div class="flex gap-6">
                 <div class="text-center">
-                    <div class="text-xs text-slate-400">زمان</div>
+                    <div class="text-xs text-muted">زمان</div>
                     <div id="timer" class="font-mono text-xl font-bold">00:00</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-xs text-slate-400">امتیاز</div>
+                    <div class="text-xs text-muted">امتیاز</div>
                     <div id="score" class="font-mono text-xl font-bold">0</div>
                 </div>
             </div>
         </header>
         
-        <main class="flex-1 flex items-center justify-center p-4">
-            <div id="card-grid" class="grid gap-2 sm:gap-4 max-w-4xl w-full h-full max-h-[70vh] items-center justify-center content-center">
+        <main class="flex-col flex items-center justify-center p-4" style="flex: 1;">
+            <div id="card-grid" class="card-grid">
                 <!-- Cards injected here -->
             </div>
         </main>
 
-        <div id="game-hint" class="p-4 text-center text-blue-400 font-bold animate-pulse">
+        <div id="game-hint" class="p-4 text-center text-blue font-bold animate-pulse">
             کارت‌ها رو به خاطر بسپار...
         </div>
     </div>
@@ -345,12 +544,7 @@
 
             const toggleBtn = document.getElementById('toggle-animated-bg');
             if (toggleBtn) {
-                toggleBtn.classList.toggle('bg-blue-600', settingsState.animatedBg);
-                toggleBtn.classList.toggle('bg-slate-700', !settingsState.animatedBg);
-                const dot = toggleBtn.querySelector('.dot');
-                if (dot) {
-                    dot.style.transform = settingsState.animatedBg ? 'translateX(28px)' : 'translateX(0)';
-                }
+                toggleBtn.classList.toggle('active', settingsState.animatedBg);
             }
 
             document.querySelectorAll('.setting-opt-bg').forEach(opt => {
@@ -519,7 +713,7 @@
         function setupGame(difficulty) {
             gameState.difficulty = difficulty;
             const config = {
-                easy: { rows: 3, cols: 4, previewTime: 3000 },
+                easy: { rows: 4, cols: 3, previewTime: 3000 },
                 medium: { rows: 4, cols: 4, previewTime: 4000 },
                 hard: { rows: 6, cols: 5, previewTime: 6000 }
             }[difficulty];
@@ -554,7 +748,9 @@
         function generateGrid(config) {
             const grid = document.getElementById('card-grid');
             grid.innerHTML = '';
-            grid.className = `grid gap-2 sm:gap-4 max-w-4xl w-full h-full max-h-[70vh] items-center justify-center content-center grid-cols-${config.cols}`;
+            
+            // Use the CSS class defined in the style block
+            grid.className = `card-grid grid-cols-${config.cols}`;
 
             const allIndices = Array.from({length: gameState.imageCount}, (_, i) => i + 1);
             const selectedIndices = allIndices.sort(() => Math.random() - 0.5).slice(0, gameState.totalPairs);
@@ -566,12 +762,12 @@
                 card.dataset.id = imgIdx;
                 card.innerHTML = `
                     <div class="card-inner shadow-2xl">
-                        <div class="card-back overflow-hidden border-2 border-white/5" style="background-image: url(card_back_${settingsState.cardBack}.png)">
-                            <div class="card-shine opacity-30"></div>
+                        <div class="card-back overflow-hidden" style="background-image: url(card_back_${settingsState.cardBack}.png)">
+                            <div class="card-shine"></div>
                         </div>
-                        <div class="card-front bg-slate-900 border-2 border-blue-500/30">
-                            <div class="card-shine opacity-20"></div>
-                            <img src="card_${imgIdx}.png" alt="card" loading="lazy" class="w-[85%] h-[85%] object-contain drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+                        <div class="card-front">
+                            <div class="card-shine"></div>
+                            <img src="card_${imgIdx}.png" alt="card" loading="eager" class="drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]">
                         </div>
                     </div>
                 `;
@@ -710,7 +906,7 @@
                             showScreen('mainMenu', false);
                         }, 500);
                     }
-                }, 4000);
+                }, 5000);
                 
                 setTimeout(() => {
                     initBackground();
@@ -749,16 +945,22 @@
             } catch (e) {}
         }
 
-        function preloadAssets() {
+        async function preloadAssets() {
             const images = [
                 'card_back_classic.png', 'card_back_modern.png', 'card_back_abstract.png',
                 'bg_pattern_dots.png', 'bg_pattern_waves.png', 'splash_logo.png'
             ];
             for (let i = 1; i <= 15; i++) images.push(`card_${i}.png`);
-            images.forEach(src => {
-                const img = new Image();
-                img.src = src;
+            
+            const promises = images.map(src => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.src = src;
+                    img.onload = resolve;
+                    img.onerror = resolve; // Continue even if one fails
+                });
             });
+            await Promise.all(promises);
         }
 
         function initLoading() {
@@ -766,20 +968,27 @@
             const splash = document.getElementById('splash-screen');
             if (!bar || !splash) return;
 
-            let progress = 0;
+            // Ensure loading animation runs for exactly 5 seconds (5000 ms)
+            const totalDuration = 5000;
+            const fps = 60;
+            const steps = Math.max(10, Math.floor((totalDuration / 1000) * fps));
+            let step = 0;
+
             const interval = setInterval(() => {
-                progress += 25 + Math.random() * 35;
-                if (progress >= 100) {
-                    progress = 100;
+                step++;
+                const progress = Math.min(100, Math.round((step / steps) * 100));
+                bar.style.width = `${progress}%`;
+
+                if (step >= steps) {
                     clearInterval(interval);
+                    // Smoothly hide splash after the 5s completes
                     splash.classList.add('opacity-0');
                     splash.style.pointerEvents = 'none';
                     setTimeout(() => {
                         splash.classList.add('hidden');
                     }, 500);
                 }
-                bar.style.width = `${progress}%`;
-            }, 50);
+            }, Math.max(8, Math.floor(totalDuration / steps)));
         }
 
         function initBackground() {
