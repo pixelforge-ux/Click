@@ -3,45 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <script src="https://developer.eitaa.com/eitaa-web-app.js" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        if (!(window.Eitaa && Eitaa.WebApp)) return;
+        const wa = Eitaa.WebApp;
+
+        if (typeof wa.ready === 'function') wa.ready();
+
+        if (typeof wa.setHeaderColor === 'function') {
+          wa.setHeaderColor('#000000');
+        }
+
+        if (typeof wa.enableClosingConfirmation === 'function') {
+          wa.enableClosingConfirmation();
+        }
+
+        if (typeof wa.disableVerticalSwipes === 'function') {
+          wa.disableVerticalSwipes();
+        }
+      } catch (e) {
+        // silent fail
+      }
+    });
+    // allow a single user gesture to enter fullscreen if desired (no-op when not supported)
+    function enterFullscreen() {
+      try {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      } catch (e) {}
+    }
+    document.addEventListener('click', () => enterFullscreen(), { once: true });
+    </script>
+
     <title>بازی حافظه تصویری</title>
 
-<script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  try {
-    if (window.Eitaa && Eitaa.WebApp) {
-      Eitaa.WebApp.ready();
-
-      // تمام صفحه شدن
-      if (Eitaa.WebApp.expand)
-        Eitaa.WebApp.expand();
-
-      // تغییر رنگ هدر به آبی مایل به سفید (ثابت)
-      if (Eitaa.WebApp.setHeaderColor)
-        Eitaa.WebApp.setHeaderColor('#e3f2fd');
-
-      // تایید قبل از بستن WebApp
-      if (Eitaa.WebApp.enableClosingConfirmation)
-        Eitaa.WebApp.enableClosingConfirmation();
-
-      // غیرفعال کردن سوایپ عمودی (اگر پشتیبانی شود)
-      if (Eitaa.WebApp.disableVerticalSwipes)
-        Eitaa.WebApp.disableVerticalSwipes();
-
-      // دکمه بک
-      Eitaa.WebApp.onEvent('backButtonClicked', () => {
-        if (history.length > 1) {
-          history.back();
-        } else {
-          Eitaa.WebApp.close();
-        }
-      });
-    }
-  } catch (e) {
-    console.warn(e);
-  }
-});
-</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" crossorigin="anonymous"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;900&display=swap');
@@ -449,7 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
 * {
   font-family: 'Vazir' !important;
 }
-    </style>
+</style>
 </head>
 <body>
     
@@ -468,6 +467,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="loading-container">
             <div id="loading-bar" class="loading-bar"></div>
         </div>
+        <p class="text-xs text-muted mt-8 opacity-60">درصورت بارگذاری نشدن، برنامک را بارگذاری مجدد کنید</p>
     </div>
 
     <!-- Main Menu -->
@@ -478,14 +478,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="flex flex-col gap-4">
                 <button id="btn-start" class="btn-primary">شروع بازی</button>
                 <button id="btn-settings" class="btn-outline">تنظیمات</button>
-                <footer class="fixed bottom-0 left-0 right-0 z-40 bg-white/5 backdrop-blur-md border-t border-white/10">
-    <div class="w-full text-center p-4">
+                
+                </div>
             </div>
-                    <div class="mt-6 flex flex-col items-center">
-                    <button id="arvin-link" aria-label="Arvinweb" onclick="window.app.openArvin()" class="text-xs text-blue-400 font-bold underline py-2" dir="rtl" style="background:none;border:none;display:inline-block;cursor:pointer;">
-                        ثبت تبلیغات @Arvinweb
-                    </button>
-                    </div>
         </div>
     </div>
 
@@ -605,6 +600,13 @@ document.addEventListener("DOMContentLoaded", () => {
         <div id="game-hint" class="p-4 text-center text-blue font-bold animate-pulse">
             کارت‌ها رو به خاطر بسپار...
         </div>
+    </div>
+
+    <!-- Footer: persistent bottom bar -->
+    <div class="fixed bottom-0 left-0 right-0 p-4 text-center z-40 bg-white/5 backdrop-blur-md border-t border-white/10">
+        <button id="arvin-link" aria-label="Arvinweb" onclick="window.app.openArvin()" class="text-xs text-blue-400 font-bold underline" dir="rtl" style="background:none;border:none;padding:0;display:inline-block;cursor:pointer;">
+        ثبت تبلیغات
+        </button>
     </div>
 
     <script type="module">
@@ -995,15 +997,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 try { playSound('click'); } catch(e) {}
                 
                 try {
-                    // Using specifically requested Eitaa SDK method: openEitaaLink
-                    if (window.Eitaa && window.Eitaa.WebApp && typeof window.Eitaa.WebApp.openEitaaLink === 'function') {
-                        window.Eitaa.WebApp.openEitaaLink(url);
+                    // Optimized Eitaa SDK integration for openEitaaLink
+                    const eitaaObj = window.Eitaa || {};
+                    const webApp = eitaaObj.WebApp || {};
+                    
+                    if (typeof webApp.openEitaaLink === 'function') {
+                        webApp.openEitaaLink(url);
                     } else if (typeof window.openEitaaLink === 'function') {
                         window.openEitaaLink(url);
+                    } else if (typeof webApp.openLink === 'function') {
+                        webApp.openLink(url);
                     } else {
                         window.open(url, '_blank');
                     }
                 } catch (err) {
+                    console.error("Link open error:", err);
                     window.open(url, '_blank');
                 }
             }
