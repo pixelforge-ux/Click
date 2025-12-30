@@ -481,16 +481,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 <footer class="fixed bottom-0 left-0 right-0 z-40 bg-white/5 backdrop-blur-md border-t border-white/10">
     <div class="w-full text-center p-4">
             </div>
-                    <footer class="fixed bottom-0 left-0 right-0 bg-white/5 border-t border-white/10 text-center p-2">
-    <button
-        onclick="
-            Eitaa.WebApp.openLink('https://eitaa.com/Arvinweb', {});
-        "
-        class="text-xs text-blue-500 font-bold underline"
-        style="background:none;border:none;cursor:pointer;">
-        ثبت تبلیغات @Arvinweb
-    </button>
-                    </footer>
+                    <div class="mt-6 flex flex-col items-center">
+                    <button id="arvin-link" aria-label="Arvinweb" onclick="window.app.openArvin()" class="text-xs text-blue-400 font-bold underline py-2" dir="rtl" style="background:none;border:none;display:inline-block;cursor:pointer;">
+                        ثبت تبلیغات @Arvinweb
+                    </button>
+                    </div>
         </div>
     </div>
 
