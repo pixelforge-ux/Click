@@ -936,23 +936,18 @@
         window.app = {
             openArvin: () => {
                 const url = 'https://eitaa.com/Arvinweb';
-                // Play sound if possible
                 try { playSound('click'); } catch(e) {}
                 
                 try {
-                    // Prioritize Eitaa SDK methods as per user instructions
-                    if (typeof window.openEitaaLink === 'function') {
-                        window.openEitaaLink(url);
-                    } else if (window.Eitaa && window.Eitaa.WebApp && typeof window.Eitaa.WebApp.openEitaaLink === 'function') {
+                    // Using specifically requested Eitaa SDK method: openEitaaLink
+                    if (window.Eitaa && window.Eitaa.WebApp && typeof window.Eitaa.WebApp.openEitaaLink === 'function') {
                         window.Eitaa.WebApp.openEitaaLink(url);
-                    } else if (window.Eitaa && typeof window.Eitaa.openEitaaLink === 'function') {
-                        window.Eitaa.openEitaaLink(url);
+                    } else if (typeof window.openEitaaLink === 'function') {
+                        window.openEitaaLink(url);
                     } else {
-                        // Fallback to standard window open
                         window.open(url, '_blank');
                     }
                 } catch (err) {
-                    console.error("Link open error:", err);
                     window.open(url, '_blank');
                 }
             }
