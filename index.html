@@ -4,40 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <script src="https://developer.eitaa.com/eitaa-web-app.js"</script>
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      try {
-        if (!(window.Eitaa && Eitaa.WebApp)) return;
-        const wa = Eitaa.WebApp;
+    <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    if (window.Eitaa && Eitaa.WebApp) {
+      Eitaa.WebApp.ready();
 
-        if (typeof wa.ready === 'function') wa.ready();
+      // تمام صفحه شدن
+      if (Eitaa.WebApp.expand)
+        Eitaa.WebApp.expand();
 
-        if (typeof wa.setHeaderColor === 'function') {
-          wa.setHeaderColor('#000000');
+      // تغییر رنگ هدر به آبی مایل به سفید (ثابت)
+      if (Eitaa.WebApp.setHeaderColor)
+        Eitaa.WebApp.setHeaderColor('#e3f2fd');
+
+      // تایید قبل از بستن WebApp
+      if (Eitaa.WebApp.enableClosingConfirmation)
+        Eitaa.WebApp.enableClosingConfirmation();
+
+      // غیرفعال کردن سوایپ عمودی (اگر پشتیبانی شود)
+      if (Eitaa.WebApp.disableVerticalSwipes)
+        Eitaa.WebApp.disableVerticalSwipes();
+
+      // دکمه بک
+      Eitaa.WebApp.onEvent('backButtonClicked', () => {
+        if (history.length > 1) {
+          history.back();
+        } else {
+          Eitaa.WebApp.close();
         }
-
-        if (typeof wa.enableClosingConfirmation === 'function') {
-          wa.enableClosingConfirmation();
-        }
-
-        if (typeof wa.disableVerticalSwipes === 'function') {
-          wa.disableVerticalSwipes();
-        }
-      } catch (e) {
-        // silent fail
-      }
-    });
-    // allow a single user gesture to enter fullscreen if desired (no-op when not supported)
-    function enterFullscreen() {
-      try {
-        const el = document.documentElement;
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-      } catch (e) {}
+      });
     }
-    document.addEventListener('click', () => enterFullscreen(), { once: true });
-    </script>
+  } catch (e) {
+    console.warn(e);
+  }
+});
+</script>
 
     <title>بازی حافظه تصویری</title>
 
