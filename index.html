@@ -442,44 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .page-blocker.hidden { display: none !important; pointer-events: none; }
 
         /* Redesigned Footer */
-        .footer-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 0.75rem 1rem;
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(transparent, rgba(2, 6, 23, 0.9) 40%);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
-
-        .ads-button {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white !important;
-            text-decoration: none !important;
-            padding: 0.6rem 2rem;
-            border-radius: 999px;
-            font-size: 0.875rem;
-            font-weight: 700;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .ads-button:active {
-            transform: scale(0.94) translateY(2px);
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
-            background: linear-gradient(135deg, #2563eb, #1e40af);
-        }
-
-        .ads-button span { margin-top: -2px; }
+        
     </style>
     <style>
 @font-face { 
@@ -665,12 +628,89 @@ document.addEventListener("DOMContentLoaded", () => {
     <div id="page-blocker" class="page-blocker"></div>
 
     <!-- Redesigned Footer -->
-    <footer class="footer-nav">
-        <a href="https://eitaa.com/Arvinweb" class="ads-button" onclick="app.openArvin(event)">
-            <span>ثبت تبلیغات @Arvinweb</span>
-        </a>
-    </footer>
+    <style>
+    	      .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.75rem 1rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(transparent, rgba(2, 6, 23, 0.9) 40%);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
 
+        .ads-button {
+    background: linear-gradient(135deg, #f97316, #c2410c); /* نارنجی روشن → نارنجی تیره */
+    color: white !important;
+    text-decoration: none !important;
+    padding: 0.6rem 2rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4); /* سایه نارنجی */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ads-button:active {
+    transform: scale(0.94) translateY(2px);
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+    background: linear-gradient(135deg, #ea580c, #9a3412); /* نارنجی تیره‌تر هنگام کلیک */
+}
+
+        .ads-button span { margin-top: -2px; }
+        </style><script>
+window.app = {
+    openForm: (event) => {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        const url = 'https://forms.gle/UHJ8mChHrEN4WFBa9';
+
+        try { playSound('click'); } catch(e) {}
+
+        try {
+            // بررسی وجود WebApp SDK
+            if (window.Eitaa && window.Eitaa.WebApp) {
+                
+                // اول سعی می‌کنیم داخل WebView باز کنیم
+                if (typeof window.Eitaa.WebApp.openLink === 'function') {
+                    window.Eitaa.WebApp.openLink(url);
+                    return; // اگه شد که دیگه کاری نمی‌کنیم
+                }
+
+                // fallback برای روش قدیمی
+                if (typeof window.Eitaa.WebApp.openEitaaLink === 'function') {
+                    window.Eitaa.WebApp.openEitaaLink(url);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn('Eitaa WebView failed', e);
+        }
+
+        // اگر WebView نشد، مرورگر پیش‌فرض باز شود
+        window.location.href = url;
+    }
+};
+        </script><footer class="footer-nav">
+    <a href="https://forms.gle/UHJ8mChHrEN4WFBa9"
+       class="ads-button"
+       onclick="app.openForm(event)">
+        <span class="icon">📢</span>
+        <span>ثبت تبلیغات</span>
+    </a>
+        </footer>
     <script type="module">
         import * as THREE from 'https://esm.sh/three';
         import confetti from 'https://esm.sh/canvas-confetti';
