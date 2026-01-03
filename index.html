@@ -627,7 +627,6 @@ document.addEventListener("DOMContentLoaded", () => {
     <!-- Page blocker overlay (shown by default to disable the page) -->
     <div id="page-blocker" class="page-blocker"></div>
 <!-- Footer -->
-<!-- Footer -->
 <footer class="footer-nav">
     <button class="ads-button" onclick="app.openForm()">
         <span class="icon">📢</span>
@@ -703,35 +702,6 @@ window.app = {
         }
 
         // fallback → مرورگر پیش‌فرض
-        window.open(url, '_blank');
-    }
-};
-</script>
-
-<!-- JS -->
-<script>
-window.app = {
-    openForm: () => {
-        const url = 'https://forms.gle/UHJ8mChHrEN4WFBa9';
-
-        try { 
-            // صدای کلیک اختیاری
-            if(typeof playSound === 'function') playSound('click'); 
-        } catch(e){}
-
-        try {
-            // باز کردن لینک در مرورگر پیش‌فرض ایتا
-            if(window.Eitaa && window.Eitaa.WebApp){
-                if(typeof window.Eitaa.WebApp.openExternalLink === 'function'){
-                    window.Eitaa.WebApp.openExternalLink(url);
-                    return;
-                }
-            }
-        } catch(e){
-            console.warn('Eitaa SDK failed, fallback', e);
-        }
-
-        // fallback مرورگر پیش‌فرض
         window.open(url, '_blank');
     }
 };
