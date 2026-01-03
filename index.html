@@ -627,6 +627,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <!-- Page blocker overlay (shown by default to disable the page) -->
     <div id="page-blocker" class="page-blocker"></div>
 <!-- Footer -->
+<!-- Footer -->
 <footer class="footer-nav">
     <button class="ads-button" onclick="app.openForm()">
         <span class="icon">📢</span>
@@ -681,6 +682,31 @@ document.addEventListener("DOMContentLoaded", () => {
     .ads-button { padding: 0.5rem 1.5rem; font-size: 0.8rem; }
 }
 </style>
+
+<!-- JS -->
+<script>
+window.app = {
+    openForm: () => {
+        const url = 'https://forms.gle/UHJ8mChHrEN4WFBa9';
+
+        // صدا یا افکت کلیک اختیاری
+        try { if(typeof playSound === 'function') playSound('click'); } catch(e){}
+
+        try {
+            // اگر SDK ایتا موجود باشد → باز کردن لینک در مرورگر پیش‌فرض
+            if(window.Eitaa && window.Eitaa.WebApp && typeof window.Eitaa.WebApp.openExternalLink === 'function'){
+                window.Eitaa.WebApp.openExternalLink(url);
+                return;
+            }
+        } catch(e){
+            console.warn('Eitaa SDK failed, fallback', e);
+        }
+
+        // fallback → مرورگر پیش‌فرض
+        window.open(url, '_blank');
+    }
+};
+</script>
 
 <!-- JS -->
 <script>
