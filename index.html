@@ -626,66 +626,90 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <!-- Page blocker overlay (shown by default to disable the page) -->
     <div id="page-blocker" class="page-blocker"></div>
+<!-- Footer -->
+<footer class="footer-nav">
+    <button class="ads-button" onclick="app.openForm()">
+        <span class="icon">📢</span>
+        <span>ثبت تبلیغات</span>
+    </button>
+</footer>
 
-    <!-- Redesigned Footer -->
-    <style>
-    	      .footer-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 0.75rem 1rem;
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(transparent, rgba(2, 6, 23, 0.9) 40%);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
+<!-- CSS -->
+<style>
+.footer-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem 1rem;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(transparent, rgba(2, 6, 23, 0.9) 40%);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
 
-        .ads-button {
-    background: linear-gradient(135deg, #f97316, #c2410c); /* نارنجی روشن → نارنجی تیره */
+.ads-button {
+    background: linear-gradient(135deg, #f97316, #c2410c);
     color: white !important;
-    text-decoration: none !important;
     padding: 0.6rem 2rem;
     border-radius: 999px;
     font-size: 0.875rem;
     font-weight: 700;
-    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4); /* سایه نارنجی */
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(249,115,22,0.4);
+    border: 1px solid rgba(255,255,255,0.2);
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
 }
 
 .ads-button:active {
     transform: scale(0.94) translateY(2px);
-    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
-    background: linear-gradient(135deg, #ea580c, #9a3412); /* نارنجی تیره‌تر هنگام کلیک */
+    box-shadow: 0 2px 8px rgba(249,115,22,0.3);
+    background: linear-gradient(135deg, #ea580c, #9a3412);
 }
 
-        .ads-button span { margin-top: -2px; }
-        </style><div id="webview-container" style="display:none; position:fixed; inset:0; z-index:2000; background:white;">
-    <iframe id="webview" src="" style="width:100%; height:100%; border:none;"></iframe>
-    <button onclick="closeWebview()" style="position:absolute; top:10px; right:10px; z-index:3000; padding:0.5rem 1rem; background:#f97316; color:white; border:none; border-radius:6px;">بازگشت</button>
-</div>
+.ads-button span { margin-top: -2px; }
 
+/* Responsive موبایل */
+@media (max-width: 480px){
+    .ads-button { padding: 0.5rem 1.5rem; font-size: 0.8rem; }
+}
+</style>
+
+<!-- JS -->
 <script>
-function openWebview(url) {
-    document.getElementById('webview').src = url;
-    document.getElementById('webview-container').style.display = 'block';
-}
+window.app = {
+    openForm: () => {
+        const url = 'https://forms.gle/UHJ8mChHrEN4WFBa9';
 
-function closeWebview() {
-    document.getElementById('webview').src = '';
-    document.getElementById('webview-container').style.display = 'none';
-}
-</script><a href="#" class="ads-button" onclick="openWebview('https://forms.gle/UHJ8mChHrEN4WFBa9')">
-    <span class="icon">📢</span>
-    <span>ثبت تبلیغات</span>
-</a>
+        try { 
+            // صدای کلیک اختیاری
+            if(typeof playSound === 'function') playSound('click'); 
+        } catch(e){}
+
+        try {
+            // باز کردن لینک در مرورگر پیش‌فرض ایتا
+            if(window.Eitaa && window.Eitaa.WebApp){
+                if(typeof window.Eitaa.WebApp.openExternalLink === 'function'){
+                    window.Eitaa.WebApp.openExternalLink(url);
+                    return;
+                }
+            }
+        } catch(e){
+            console.warn('Eitaa SDK failed, fallback', e);
+        }
+
+        // fallback مرورگر پیش‌فرض
+        window.open(url, '_blank');
+    }
+};
+</script>
     <script type="module">
         import * as THREE from 'https://esm.sh/three';
         import confetti from 'https://esm.sh/canvas-confetti';
