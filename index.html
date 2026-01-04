@@ -626,86 +626,195 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <!-- Page blocker overlay (shown by default to disable the page) -->
     <div id="page-blocker" class="page-blocker"></div>
-<!-- Footer -->
-<footer class="footer-nav">
-    <button class="ads-button" onclick="app.openForm()">
-        <span class="icon">📢</span>
-        <span>ثبت تبلیغات</span>
-    </button>
-</footer>
+<!-- ===== FULL FOOTER + ADS WEBVIEW + PERCENT LOADER (WITH JS) ===== -->
 
-<!-- CSS -->
 <style>
-.footer-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 0.75rem 1rem;
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(transparent, rgba(2, 6, 23, 0.9) 40%);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+/* ---------- Footer ---------- */
+.footer-nav{
+    position:fixed;
+    bottom:0;left:0;right:0;
+    padding:1.2rem;
+    display:flex;
+    justify-content:center;
+    background:linear-gradient(transparent,rgba(2,6,23,.9) 60%);
+    z-index:40;
+    pointer-events:none;
+}
+.ads-button{
+    pointer-events:auto;
+    background:linear-gradient(135deg,#f97316,#c2410c);
+    color:#fff;
+    padding:12px 36px;
+    border-radius:999px;
+    font-weight:800;
+    border:none;
+    box-shadow:0 4px 15px rgba(249,115,22,.4);
 }
 
-.ads-button {
-    background: linear-gradient(135deg, #f97316, #c2410c);
-    color: white !important;
-    padding: 0.6rem 2rem;
-    border-radius: 999px;
-    font-size: 0.875rem;
-    font-weight: 700;
-    box-shadow: 0 4px 15px rgba(249,115,22,0.4);
-    border: 1px solid rgba(255,255,255,0.2);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    outline: none;
-    transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+/* ---------- WebView ---------- */
+#ads-webview{
+    position:fixed;
+    inset:0;
+    background:#0f172a;
+    z-index:100;
+    display:flex;
+    flex-direction:column;
+    transform:translateY(100%);
+    transition:.4s ease;
+}
+#ads-webview.active{
+    transform:translateY(0);
 }
 
-.ads-button:active {
-    transform: scale(0.94) translateY(2px);
-    box-shadow: 0 2px 8px rgba(249,115,22,0.3);
-    background: linear-gradient(135deg, #ea580c, #9a3412);
+/* Header */
+.ads-header{
+    padding:12px;
+    background:#020617;
+    color:#fff;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-weight:700;
 }
 
-.ads-button span { margin-top: -2px; }
+/* ---------- Loader ---------- */
+.loader-wrap{
+    position:absolute;
+    inset:0;
+    background:#0f172a;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:10;
+}
+.loader-box{
+    text-align:center;
+    color:#f8fafc;
+}
+.loader-ring{
+    width:120px;height:120px;
+    border-radius:50%;
+    border:6px solid rgba(255,255,255,.15);
+    border-top-color:#f97316;
+    animation:spin 1s linear infinite;
+    margin:0 auto 16px;
+}
+.loader-percent{
+    font-size:28px;
+    font-weight:900;
+}
+.loader-text{
+    margin-top:8px;
+    font-size:13px;
+    color:#94a3b8;
+}
 
-/* Responsive موبایل */
-@media (max-width: 480px){
-    .ads-button { padding: 0.5rem 1.5rem; font-size: 0.8rem; }
+@keyframes spin{
+    to{transform:rotate(360deg)}
+}
+
+/* iframe */
+#ads-iframe{
+    flex:1;
+    border:none;
+    background:white;
 }
 </style>
 
-<!-- JS -->
+<!-- ---------- Footer ---------- -->
+<footer class="footer-nav">
+    <button id="btn-ads-open" class="ads-button">📢 ثبت تبلیغات</button>
+</footer>
+
+<!-- ---------- Ads WebView ---------- -->
+<div id="ads-webview">
+
+    <div class="ads-header">
+        <button id="btn-ads-close"
+                style="background:none;border:none;color:white;font-weight:bold">
+            ← بازگشت
+        </button>
+        <span>فرم ثبت تبلیغ</span>
+        <span style="width:40px"></span>
+    </div>
+
+    <div style="position:relative;flex:1">
+        <!-- Loader -->
+        <div id="ads-loader" class="loader-wrap">
+            <div class="loader-box">
+                <div class="loader-ring"></div>
+                <div id="loader-percent" class="loader-percent">0%</div>
+                <div class="loader-text">در حال بارگذاری...</div>
+            </div>
+        </div>
+
+        <!-- WebView -->
+        <iframe
+            id="ads-iframe"
+            src="">
+        </iframe>
+    </div>
+
+</div>
+
 <script>
-window.app = {
-    openForm: () => {
-        const url = 'https://forms.gle/UHJ8mChHrEN4WFBa9';
+/* ---------- Elements ---------- */
+const btnOpen   = document.getElementById('btn-ads-open');
+const btnClose  = document.getElementById('btn-ads-close');
+const webview   = document.getElementById('ads-webview');
+const iframe    = document.getElementById('ads-iframe');
+const loader    = document.getElementById('ads-loader');
+const percentEl = document.getElementById('loader-percent');
 
-        // صدا یا افکت کلیک اختیاری
-        try { if(typeof playSound === 'function') playSound('click'); } catch(e){}
+let loadingTimer;
 
-        try {
-            // اگر SDK ایتا موجود باشد → باز کردن لینک در مرورگر پیش‌فرض
-            if(window.Eitaa && window.Eitaa.WebApp && typeof window.Eitaa.WebApp.openExternalLink === 'function'){
-                window.Eitaa.WebApp.openExternalLink(url);
-                return;
-            }
-        } catch(e){
-            console.warn('Eitaa SDK failed, fallback', e);
+/* ---------- Open WebView ---------- */
+function openAds(){
+    const url = 'https://forms.gle/UHJ8mChHrEN4WFBa9';
+
+    percentEl.textContent = '0%';
+    loader.style.display = 'flex';
+    webview.classList.add('active');
+    iframe.src = url;
+
+    // Fake but smooth progress
+    let percent = 0;
+    clearInterval(loadingTimer);
+    loadingTimer = setInterval(()=>{
+        if(percent < 90){
+            percent += Math.floor(Math.random()*5)+1;
+            percentEl.textContent = percent + '%';
         }
+    }, 200);
+}
 
-        // fallback → مرورگر پیش‌فرض
-        window.open(url, '_blank');
-    }
+/* ---------- iframe loaded ---------- */
+iframe.onload = () => {
+    clearInterval(loadingTimer);
+    percentEl.textContent = '100%';
+    setTimeout(()=>{
+        loader.style.display = 'none';
+    }, 400);
+};
+
+/* ---------- Close ---------- */
+btnOpen.onclick = () => {
+    history.pushState({view:'ads'}, '');
+    openAds();
+};
+
+btnClose.onclick = () => {
+    history.back();
+};
+
+window.onpopstate = () => {
+    webview.classList.remove('active');
+    iframe.src = '';
 };
 </script>
+
+<!-- ===== END ===== -->
+
     <script type="module">
         import * as THREE from 'https://esm.sh/three';
         import confetti from 'https://esm.sh/canvas-confetti';
