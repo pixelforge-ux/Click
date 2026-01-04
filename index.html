@@ -626,22 +626,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <!-- Page blocker overlay (shown by default to disable the page) -->
     <div id="page-blocker" class="page-blocker"></div>
-<!-- ===== FULL FOOTER + ADS WEBVIEW + PERCENT LOADER (WITH JS) ===== -->
+<!-- ===== FULL FIXED FOOTER + ADS WEBVIEW (FINAL) ===== -->
 
 <style>
 /* ---------- Footer ---------- */
 .footer-nav{
     position:fixed;
-    bottom:0;left:0;right:0;
-    padding:1.2rem;
+    bottom:0;
+    left:0;
+    right:0;
+    padding:16px;
     display:flex;
     justify-content:center;
-    background:linear-gradient(transparent,rgba(2,6,23,.9) 60%);
-    z-index:40;
-    pointer-events:none;
+    background:linear-gradient(transparent,rgba(2,6,23,.95) 60%);
+    z-index:9999;
 }
+
 .ads-button{
-    pointer-events:auto;
     background:linear-gradient(135deg,#f97316,#c2410c);
     color:#fff;
     padding:12px 36px;
@@ -656,24 +657,25 @@ document.addEventListener("DOMContentLoaded", () => {
     position:fixed;
     inset:0;
     background:#0f172a;
-    z-index:100;
+    z-index:10000;
     display:flex;
     flex-direction:column;
     transform:translateY(100%);
-    transition:.4s ease;
+    transition:transform .35s ease;
 }
+
 #ads-webview.active{
     transform:translateY(0);
 }
 
 /* Header */
 .ads-header{
-    padding:12px;
+    padding:14px;
     background:#020617;
-    color:#fff;
+    color:white;
     display:flex;
-    justify-content:space-between;
     align-items:center;
+    justify-content:space-between;
     font-weight:700;
 }
 
@@ -687,26 +689,22 @@ document.addEventListener("DOMContentLoaded", () => {
     justify-content:center;
     z-index:10;
 }
-.loader-box{
-    text-align:center;
-    color:#f8fafc;
-}
+
 .loader-ring{
-    width:120px;height:120px;
+    width:100px;
+    height:100px;
     border-radius:50%;
     border:6px solid rgba(255,255,255,.15);
     border-top-color:#f97316;
     animation:spin 1s linear infinite;
-    margin:0 auto 16px;
+    margin:0 auto 14px;
 }
+
 .loader-percent{
-    font-size:28px;
+    font-size:26px;
     font-weight:900;
-}
-.loader-text{
-    margin-top:8px;
-    font-size:13px;
-    color:#94a3b8;
+    color:white;
+    text-align:center;
 }
 
 @keyframes spin{
@@ -723,7 +721,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <!-- ---------- Footer ---------- -->
 <footer class="footer-nav">
-    <button id="btn-ads-open" class="ads-button">📢 ثبت تبلیغات</button>
+    <button id="btn-ads-open" class="ads-button">
+        📢 ثبت تبلیغات
+    </button>
 </footer>
 
 <!-- ---------- Ads WebView ---------- -->
@@ -731,7 +731,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <div class="ads-header">
         <button id="btn-ads-close"
-                style="background:none;border:none;color:white;font-weight:bold">
+                style="background:none;border:none;color:white;font-weight:800">
             ← بازگشت
         </button>
         <span>فرم ثبت تبلیغ</span>
@@ -741,10 +741,9 @@ document.addEventListener("DOMContentLoaded", () => {
     <div style="position:relative;flex:1">
         <!-- Loader -->
         <div id="ads-loader" class="loader-wrap">
-            <div class="loader-box">
+            <div>
                 <div class="loader-ring"></div>
                 <div id="loader-percent" class="loader-percent">0%</div>
-                <div class="loader-text">در حال بارگذاری...</div>
             </div>
         </div>
 
@@ -756,6 +755,63 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 
 </div>
+
+<script>
+/* ---------- Elements ---------- */
+const btnOpen   = document.getElementById('btn-ads-open');
+const btnClose  = document.getElementById('btn-ads-close');
+const webview   = document.getElementById('ads-webview');
+const iframe    = document.getElementById('ads-iframe');
+const loader    = document.getElementById('ads-loader');
+const percentEl = document.getElementById('loader-percent');
+
+let timer;
+
+/* ---------- Open ---------- */
+function openAds(){
+    const url = 'https://forms.gle/UHJ8mChHrEN4WFBa9';
+
+    percentEl.textContent = '0%';
+    loader.style.display = 'flex';
+    webview.classList.add('active');
+    iframe.src = url;
+
+    let p = 0;
+    clearInterval(timer);
+    timer = setInterval(()=>{
+        if(p < 90){
+            p += Math.floor(Math.random()*5)+1;
+            percentEl.textContent = p + '%';
+        }
+    },200);
+}
+
+/* ---------- Loaded ---------- */
+iframe.onload = () => {
+    clearInterval(timer);
+    percentEl.textContent = '100%';
+    setTimeout(()=>{
+        loader.style.display = 'none';
+    },400);
+};
+
+/* ---------- Events ---------- */
+btnOpen.onclick = () => {
+    history.pushState({ads:true}, '');
+    openAds();
+};
+
+btnClose.onclick = () => {
+    history.back();
+};
+
+window.onpopstate = () => {
+    webview.classList.remove('active');
+    iframe.src = '';
+};
+</script>
+
+<!-- ===== END ===== -->
 
 <script>
 /* ---------- Elements ---------- */
